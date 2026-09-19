@@ -1,0 +1,365 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════ -->
+<section class="hero-section">
+  <div class="hero-bg-pattern"></div>
+  <div class="hero-blob hero-blob-1"></div>
+  <div class="hero-blob hero-blob-2"></div>
+
+  <div class="container position-relative" style="z-index:2;">
+    <div class="row align-items-center g-5" style="padding:90px 0 70px;">
+
+      <!-- LEFT ─ Copy -->
+      <div class="col-lg-6">
+        <span class="hero-pill">
+          <span class="hero-pill-dot"></span>
+          Flagship product · SanjivaniOne ERP
+        </span>
+
+        <h1 class="hero-heading">
+          SanjivaniOne ERP<br>
+          <span class="hero-heading-accent">from SP-Tech Software Solution</span>
+        </h1>
+
+        <p class="hero-subtext">
+          Run finance, inventory, HR, sales, and operations in one GST-ready platform.
+          SanjivaniOne ERP is the main product of SP-Tech Software Solution—built for
+          SMBs that want to replace outdated systems and grow faster.
+        </p>
+
+        <div class="hero-actions">
+          <a href="{% url 'products:list' %}" class="btn btn-hero-primary">
+            Explore Products <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+          <a href="{% url 'contact:book_demo' %}" class="btn btn-hero-ghost">
+            <i class="bi bi-calendar-check me-2"></i>Book a Demo
+          </a>
+        </div>
+
+        <div class="hero-stats-row">
+          <div class="hero-stat">
+            <span class="hero-stat-num">50+</span>
+            <span class="hero-stat-label">Happy Clients</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-num">10+</span>
+            <span class="hero-stat-label">Products</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-num">99.9%</span>
+            <span class="hero-stat-label">Uptime SLA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT ─ Visual -->
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="hero-visual-wrap">
+
+          <!-- Central logo card -->
+          <div class="hero-logo-card">
+            <img src="{% static 'assets/sp-tech-logo.png' %}" alt="SP-Tech Software Solution" class="hero-logo-img" width="160" height="160" style="width:160px;height:160px;max-width:160px;max-height:160px;object-fit:contain;" />
+          </div>
+
+          <!-- Metric chips -->
+          <div class="hero-chip chip-1">
+            <i class="bi bi-truck-front-fill text-primary"></i>
+            <div>
+              <span class="chip-val">1,482</span>
+              <span class="chip-lbl">Shipments Today</span>
+            </div>
+          </div>
+
+          <div class="hero-chip chip-2">
+            <i class="bi bi-graph-up-arrow text-success"></i>
+            <div>
+              <span class="chip-val">₹ 22 Lakh</span>
+              <span class="chip-lbl">Pipeline Value</span>
+            </div>
+          </div>
+
+          <div class="hero-chip chip-3">
+            <i class="bi bi-receipt text-warning"></i>
+            <div>
+              <span class="chip-val">342</span>
+              <span class="chip-lbl">Invoices Sent</span>
+            </div>
+          </div>
+
+          <div class="hero-chip chip-4">
+            <i class="bi bi-shield-check-fill text-success"></i>
+            <div>
+              <span class="chip-val">ISO</span>
+              <span class="chip-lbl">Compliant</span>
+            </div>
+          </div>
+
+          <!-- Decorative ring -->
+          <div class="hero-ring"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     TRUST STRIP
+═══════════════════════════════════════════════ -->
+<div class="trust-strip">
+  <div class="container">
+    <p class="trust-strip-label">Powering businesses across industries</p>
+    <div class="trust-strip-items">
+      <span class="trust-chip"><i class="bi bi-truck"></i>Logistics</span>
+      <span class="trust-chip"><i class="bi bi-cart-check"></i>Retail</span>
+      <span class="trust-chip"><i class="bi bi-building"></i>Manufacturing</span>
+      <span class="trust-chip"><i class="bi bi-hospital"></i>Healthcare</span>
+      <span class="trust-chip"><i class="bi bi-briefcase"></i>Consulting</span>
+      <span class="trust-chip"><i class="bi bi-bank"></i>Finance</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PRODUCTS
+═══════════════════════════════════════════════ -->
+<section class="section-py">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-label">Our Products</span>
+      <h2 class="section-title mt-2">SanjivaniOne ERP and <span class="text-gradient">Supporting Tools</span></h2>
+      <p class="section-subtitle mx-auto mt-2">
+        SanjivaniOne ERP is our flagship platform. Specialised SP-Tech modules
+        extend it for logistics, sales, and day-to-day operations.
+      </p>
+    </div>
+
+    {% if flagship %}
+    <div class="row g-4 mb-4">
+      <div class="col-12">
+        <div class="pcard h-100">
+          <div class="pcard-top">
+            <div class="pcard-icon"><i class="{{ flagship.icon_class }}"></i></div>
+            <span class="pcard-badge">Flagship</span>
+          </div>
+          <h3 class="pcard-title">{{ flagship.name }}</h3>
+          <p class="pcard-text">{{ flagship.short_description }}</p>
+          <a href="{{ flagship.get_absolute_url }}" class="pcard-link">Learn More <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+      {% for product in featured_products %}
+      <div class="col-md-6 col-lg-4">
+        <div class="pcard h-100">
+          <div class="pcard-top">
+            <div class="pcard-icon"><i class="{{ product.icon_class }}"></i></div>
+          </div>
+          <h3 class="pcard-title">{{ product.name }}</h3>
+          <p class="pcard-text">{{ product.short_description }}</p>
+          <a href="{{ product.get_absolute_url }}" class="pcard-link">Learn More <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+      </div>
+      {% empty %}
+      {% if not flagship %}
+      <div class="col-md-6 col-lg-4">
+        <div class="pcard h-100">
+          <div class="pcard-top"><div class="pcard-icon"><i class="bi bi-building-gear"></i></div><span class="pcard-badge">Flagship</span></div>
+          <h3 class="pcard-title">SanjivaniOne ERP</h3>
+          <p class="pcard-text">The flagship product of SP-Tech Software Solution—finance, inventory, HR, sales, and operations in one GST-ready platform.</p>
+          <a href="/sanjivanione-erp/" class="pcard-link">Learn More <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="pcard h-100">
+          <div class="pcard-top"><div class="pcard-icon"><i class="bi bi-truck"></i></div></div>
+          <h3 class="pcard-title">Logistics Management System</h3>
+          <p class="pcard-text">End-to-end freight tracking, route optimisation, and warehouse management in one unified platform.</p>
+          <a href="/logistics-management-software/" class="pcard-link">Learn More <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="pcard h-100">
+          <div class="pcard-top"><div class="pcard-icon"><i class="bi bi-graph-up-arrow"></i></div></div>
+          <h3 class="pcard-title">Quote & Sales Management</h3>
+          <p class="pcard-text">Generate professional quotes, manage leads, and close deals faster with automated follow-ups.</p>
+          <a href="/quote-sales-management-software/" class="pcard-link">Learn More <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-5">
+      <a href="{% url 'products:list' %}" class="btn btn-primary btn-lg px-5">
+        View All Products <i class="bi bi-grid ms-2"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     STATS BAR
+═══════════════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="row g-0">
+      <div class="col-6 col-md-3 stats-bar-item">
+        <span class="stats-bar-num">50+</span>
+        <span class="stats-bar-lbl">Clients Served</span>
+      </div>
+      <div class="col-6 col-md-3 stats-bar-item">
+        <span class="stats-bar-num">10+</span>
+        <span class="stats-bar-lbl">Software Products</span>
+      </div>
+      <div class="col-6 col-md-3 stats-bar-item">
+        <span class="stats-bar-num">99.9%</span>
+        <span class="stats-bar-lbl">Uptime SLA</span>
+      </div>
+      <div class="col-6 col-md-3 stats-bar-item">
+        <span class="stats-bar-num">48 hrs</span>
+        <span class="stats-bar-lbl">Average Go-Live</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     WHY US
+═══════════════════════════════════════════════ -->
+<section class="section-py">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+
+      <div class="col-lg-5">
+        <span class="section-label">Why SP-Tech Software Solution</span>
+        <h2 class="section-title mt-2">Everything You Need<br><span class="text-gradient">to Scale Fast</span></h2>
+        <p class="text-muted mt-3 mb-4">
+          We don't just ship software — we become the technology backbone
+          your business runs on. Reliable, secure, and always improving.
+        </p>
+        <div class="d-flex flex-column gap-3">
+          <div class="why-inline-item">
+            <div class="why-inline-icon bg-primary-soft"><i class="bi bi-lightning-charge-fill text-primary"></i></div>
+            <div>
+              <strong>Rapid Deployment</strong>
+              <p class="mb-0 small text-muted">Go live in days, not months, with guided onboarding.</p>
+            </div>
+          </div>
+          <div class="why-inline-item">
+            <div class="why-inline-icon bg-success-soft"><i class="bi bi-shield-lock-fill text-success"></i></div>
+            <div>
+              <strong>Enterprise Security</strong>
+              <p class="mb-0 small text-muted">End-to-end encryption and role-based access control.</p>
+            </div>
+          </div>
+          <div class="why-inline-item">
+            <div class="why-inline-icon bg-warning-soft"><i class="bi bi-headset text-warning"></i></div>
+            <div>
+              <strong>Dedicated Support</strong>
+              <p class="mb-0 small text-muted">A named success manager, every business day.</p>
+            </div>
+          </div>
+        </div>
+        <a href="{% url 'core:about' %}" class="btn btn-primary mt-4">Our Story <i class="bi bi-arrow-right ms-1"></i></a>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="why-card">
+              <div class="why-icon-wrap"><i class="bi bi-building-gear"></i></div>
+              <h5>SanjivaniOne ERP</h5>
+              <p>Finance, inventory, HR, sales, and operations in one flagship platform.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="why-card">
+              <div class="why-icon-wrap" style="background:linear-gradient(135deg,#f97316,#fb923c)"><i class="bi bi-graph-up-arrow"></i></div>
+              <h5>Sales Automation</h5>
+              <p>Automate quotes, follow-ups and approvals to close deals 3× faster.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="why-card">
+              <div class="why-icon-wrap" style="background:linear-gradient(135deg,#10b981,#34d399)"><i class="bi bi-bar-chart-line-fill"></i></div>
+              <h5>Live Analytics</h5>
+              <p>Custom dashboards and drill-down reports to guide every decision.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="why-card">
+              <div class="why-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)"><i class="bi bi-puzzle-fill"></i></div>
+              <h5>Easy Integrations</h5>
+              <p>Connects to Tally, SAP, biometric devices and payment gateways out of the box.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     TESTIMONIALS
+═══════════════════════════════════════════════ -->
+{% if testimonials %}
+<section class="section-py" style="background:var(--gray-50);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-label">Client Stories</span>
+      <h2 class="section-title mt-2">Businesses That <span class="text-gradient">Trust Us</span></h2>
+    </div>
+    <div class="row g-4">
+      {% for t in testimonials %}
+      <div class="col-md-6 col-lg-3">
+        <div class="tcard h-100">
+          <div class="tcard-stars">{% for i in "12345" %}<i class="bi bi-star-fill"></i>{% endfor %}</div>
+          <p class="tcard-quote">"{{ t.quote }}"</p>
+          <div class="tcard-author">
+            <div class="tcard-avatar">{{ t.client_name|slice:":1" }}</div>
+            <div>
+              <strong class="d-block" style="font-size:.93rem;">{{ t.client_name }}</strong>
+              <small class="text-muted">{{ t.company }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════
+     CTA
+═══════════════════════════════════════════════ -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="container text-center position-relative" style="z-index:2;">
+      <span class="cta-badge mb-3 d-inline-block">
+        <i class="bi bi-calendar-check me-2"></i>Free 30-min Demo
+      </span>
+      <h2 class="cta-title">Ready to Transform Your Business?</h2>
+      <p class="cta-subtitle mb-4">
+        See SanjivaniOne ERP in action — no obligation, no sales pressure.
+      </p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'contact:book_demo' %}" class="btn btn-cta-primary">Book Free Demo</a>
+        <a href="{% url 'products:list' %}" class="btn btn-cta-ghost">Browse Products</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

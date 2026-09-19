@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="page-header">
+  <div class="container text-center">
+    <h1 class="page-header-title">Enquiry <span class="text-gradient">Details</span></h1>
+    <p class="page-header-subtitle">Submitted {{ enquiry.created_at|date:"d M Y, h:i A" }}</p>
+  </div>
+</section>
+
+<section class="section-py">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="mb-3">
+          <a href="{% url 'contact:enquiry_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to Enquiries
+          </a>
+        </div>
+
+        <div class="enquiry-form-card">
+          <div class="enquiry-form-header mb-4">
+            <div class="enquiry-form-icon"><i class="bi bi-person-lines-fill"></i></div>
+            <div>
+              <h2 class="enquiry-form-title mb-1">{{ enquiry.full_name }}</h2>
+              <p class="enquiry-form-sub">{{ enquiry.company_name }}</p>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-sm-6">
+              <p class="contact-info-label mb-1">Name</p>
+              <p class="mb-0 fw-semibold">{{ enquiry.first_name }}</p>
+            </div>
+            <div class="col-sm-6">
+              <p class="contact-info-label mb-1">Surname</p>
+              <p class="mb-0 fw-semibold">{{ enquiry.surname }}</p>
+            </div>
+            <div class="col-sm-6">
+              <p class="contact-info-label mb-1">Mobile No</p>
+              <p class="mb-0 fw-semibold">
+                <a href="tel:+91{{ enquiry.mobile_no }}">+91 {{ enquiry.mobile_no }}</a>
+              </p>
+            </div>
+            <div class="col-sm-6">
+              <p class="contact-info-label mb-1">Email</p>
+              <p class="mb-0 fw-semibold">
+                {% if enquiry.email %}
+                <a href="mailto:{{ enquiry.email }}">{{ enquiry.email }}</a>
+                {% else %}—{% endif %}
+              </p>
+            </div>
+            <div class="col-12">
+              <p class="contact-info-label mb-1">Company Name</p>
+              <p class="mb-0 fw-semibold">{{ enquiry.company_name }}</p>
+            </div>
+            <div class="col-12">
+              <p class="contact-info-label mb-1">Company Address</p>
+              <p class="mb-0" style="white-space:pre-line;">{{ enquiry.company_address }}</p>
+            </div>
+            <div class="col-12">
+              <p class="contact-info-label mb-1">S/W Requirement</p>
+              <div class="p-3 rounded" style="background:var(--gray-50);white-space:pre-line;">{{ enquiry.software_requirement }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

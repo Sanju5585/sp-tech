@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Page Header -->
+<section class="page-header">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="product-detail-icon">
+            <i class="{{ product.icon_class }} fs-2"></i>
+          </div>
+          <div>
+            {% if product.category %}
+            <span class="badge badge-accent">{{ product.category.name }}</span>
+            {% endif %}
+            {% if product.slug == 'sanjivanione-erp' %}
+            <span class="badge bg-warning text-dark">Flagship Product</span>
+            {% endif %}
+          </div>
+        </div>
+        <h1 class="page-header-title text-start">{{ product.name }}</h1>
+        <p class="page-header-subtitle text-start">{{ product.tagline }}</p>
+        <nav aria-label="breadcrumb" class="mt-3">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:list' %}">Products</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+          </ol>
+        </nav>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+        <a href="{% url 'contact:book_demo' %}" class="btn btn-light btn-lg px-4 me-2">
+          <i class="bi bi-play-circle me-2"></i>Request Demo
+        </a>
+        {% if product.demo_url %}
+        <a href="{{ product.demo_url }}" target="_blank" rel="noopener" class="btn btn-outline-light btn-lg px-4">
+          <i class="bi bi-box-arrow-up-right me-2"></i>Live Demo
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main Content -->
+<section class="section-py">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Description + Features -->
+      <div class="col-lg-7">
+        {% if product.hero_image %}
+        <img src="{{ product.hero_image.url }}" alt="{{ product.name }} Screenshot"
+             class="img-fluid rounded-3 shadow-sm mb-4" />
+        {% else %}
+        <!-- Screenshot Placeholder -->
+        <div class="screenshot-placeholder mb-4">
+          <i class="bi bi-display fs-1 text-muted"></i>
+          <p class="text-muted mt-2">Product screenshots coming soon</p>
+        </div>
+        {% endif %}
+
+        <h2 class="mb-4">About <span class="text-gradient">{{ product.name }}</span></h2>
+        <div class="product-description">
+          {{ product.full_description|linebreaks }}
+        </div>
+
+        <!-- Screenshots carousel (if available) -->
+        {% if product.screenshots.exists %}
+        <h3 class="mt-5 mb-3">Screenshots</h3>
+        <div id="screenshotCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner rounded-3 shadow">
+            {% for ss in product.screenshots.all %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <img src="{{ ss.image.url }}" class="d-block w-100" alt="{{ ss.caption|default:product.name }}" />
+              {% if ss.caption %}
+              <div class="carousel-caption d-none d-md-block">
+                <p>{{ ss.caption }}</p>
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#screenshotCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#screenshotCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Sidebar: Features + CTA -->
+      <div class="col-lg-5">
+        {% if product.features.exists %}
+        <div class="features-sidebar">
+          <h3 class="mb-4">Key Features</h3>
+          <div class="features-list">
+            {% for feature in product.features.all %}
+            <div class="feature-item">
+              <div class="feature-icon">
+                <i class="{{ feature.icon_class }}"></i>
+              </div>
+              <div>
+                <h6 class="mb-1">{{ feature.title }}</h6>
+                <p class="text-muted small mb-0">{{ feature.description }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% else %}
+        <!-- Placeholder features for LMS -->
+        <div class="features-sidebar">
+          <h3 class="mb-4">Key Features</h3>
+          <div class="features-list">
+            <div class="feature-item"><div class="feature-icon"><i class="bi bi-check-circle-fill"></i></div><div><h6 class="mb-1">Feature 1</h6><p class="text-muted small mb-0">Description of this powerful feature and how it helps your business.</p></div></div>
+            <div class="feature-item"><div class="feature-icon"><i class="bi bi-check-circle-fill"></i></div><div><h6 class="mb-1">Feature 2</h6><p class="text-muted small mb-0">Description of this powerful feature and how it helps your business.</p></div></div>
+            <div class="feature-item"><div class="feature-icon"><i class="bi bi-check-circle-fill"></i></div><div><h6 class="mb-1">Feature 3</h6><p class="text-muted small mb-0">Description of this powerful feature and how it helps your business.</p></div></div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Demo Request Card -->
+        <div class="demo-cta-card mt-4">
+          <h4><i class="bi bi-calendar-check me-2"></i>Book a Free Demo</h4>
+          <p class="text-muted small mb-4">
+            See {{ product.name }} in action. Our product specialist will walk you
+            through the features most relevant to your business—no commitment required.
+          </p>
+          <a href="{% url 'contact:book_demo' %}"
+             class="btn btn-accent w-100 btn-lg">
+            Request Demo <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+          <hr />
+          <div class="d-flex gap-4 justify-content-center text-center small text-muted">
+            <span><i class="bi bi-clock me-1"></i>30 min call</span>
+            <span><i class="bi bi-camera-video me-1"></i>Online / In-person</span>
+            <span><i class="bi bi-shield-check me-1"></i>No obligation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Related Products -->
+{% if related_products %}
+<section class="section-py bg-light-subtle">
+  <div class="container">
+    <h3 class="mb-4">You Might Also Like</h3>
+    <div class="row g-4">
+      {% for rp in related_products %}
+      <div class="col-md-4">
+        <div class="product-card h-100">
+          <div class="product-card-icon"><i class="{{ rp.icon_class }} fs-2"></i></div>
+          <h5 class="product-card-title">{{ rp.name }}</h5>
+          <p class="product-card-text small">{{ rp.short_description }}</p>
+          <a href="{{ rp.get_absolute_url }}" class="btn btn-outline-primary btn-sm mt-auto">Learn More</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block schema_markup %}
+<script type="application/ld+json">
+{{ schema_markup|safe }}
+</script>
+{% endblock %}

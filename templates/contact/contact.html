@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- ── Page Header ── -->
+<section class="page-header">
+  <div class="container text-center">
+    <h1 class="page-header-title">Get in <span class="text-gradient">Touch</span></h1>
+    <p class="page-header-subtitle">We respond within 24 hours — no sales pressure, just honest answers</p>
+    <nav aria-label="breadcrumb" class="mt-3">
+      <ol class="breadcrumb justify-content-center">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+        <li class="breadcrumb-item active">Contact Us</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<!-- ── Contact Body ── -->
+<section class="section-py">
+  <div class="container">
+    <div class="row g-5 align-items-start">
+
+      <!-- ── LEFT: Info cards + map ── -->
+      <div class="col-lg-4">
+
+        <!-- Quick-info cards -->
+        <div class="contact-info-card mb-3">
+          <div class="contact-info-icon"><i class="bi bi-geo-alt-fill"></i></div>
+          <div>
+            <p class="contact-info-label">Corporate Office</p>
+            <p class="contact-info-value mb-0">
+              Plot No 264, Ecotech-3,<br />
+              Greater Noida West,<br />
+              Gautam Buddha Nagar – 201301,<br />
+              Uttar Pradesh, India
+            </p>
+          </div>
+        </div>
+
+        <div class="contact-info-card mb-3">
+          <div class="contact-info-icon"><i class="bi bi-envelope-fill"></i></div>
+          <div>
+            <p class="contact-info-label">Email</p>
+            <a href="mailto:contact@sanjivani.com" class="contact-info-value">contact@sanjivani.com</a>
+          </div>
+        </div>
+
+        <div class="contact-info-card mb-3">
+          <div class="contact-info-icon"><i class="bi bi-telephone-fill"></i></div>
+          <div>
+            <p class="contact-info-label">Phone</p>
+            <a href="tel:+918447695372" class="contact-info-value">+91 84476 95372</a>
+          </div>
+        </div>
+
+        <div class="contact-info-card mb-3">
+          <div class="contact-info-icon" style="background:#25D366;"><i class="bi bi-whatsapp text-white"></i></div>
+          <div>
+            <p class="contact-info-label">WhatsApp</p>
+            <a href="https://wa.me/{{ WHATSAPP_NUMBER }}?text=Hi%20SP-Tech%20Software%20Solution%2C%20I%20would%20like%20to%20know%20more%20about%20SanjivaniOne%20ERP."
+               target="_blank" rel="noopener" class="contact-info-value">
+              Chat on WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <div class="contact-info-card mb-4">
+          <div class="contact-info-icon"><i class="bi bi-clock-fill"></i></div>
+          <div>
+            <p class="contact-info-label">Business Hours</p>
+            <p class="contact-info-value mb-0">Mon – Sat &nbsp;|&nbsp; 9:00 AM – 6:30 PM IST</p>
+          </div>
+        </div>
+
+        <!-- Map embed – Greater Noida / Ecotech III -->
+        <div class="contact-map">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3508.8609988!2d77.5083!3d28.4823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cbf0b!2sEcotech%20III%2C%20Greater%20Noida!5e0!3m2!1sen!2sin!4v1630000000000!5m2!1sen!2sin"
+            width="100%" height="220" style="border:0;" allowfullscreen
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            title="SP-Tech Software Solution Office – Greater Noida">
+          </iframe>
+        </div>
+
+      </div>
+
+      <!-- ── RIGHT: Enquiry Form ── -->
+      <div class="col-lg-8">
+        <div class="enquiry-form-card">
+
+          <div class="enquiry-form-header">
+            <div class="enquiry-form-icon"><i class="bi bi-chat-dots-fill"></i></div>
+            <div>
+              <h2 class="enquiry-form-title">Send an Enquiry</h2>
+              <p class="enquiry-form-sub">Tell us about your requirement — we'll get back within one business day.</p>
+            </div>
+          </div>
+
+          {% if messages %}
+            {% for msg in messages %}
+            <div class="alert alert-success d-flex align-items-center gap-2 mb-4" role="alert">
+              <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+              <span>{{ msg }}</span>
+            </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.name.id_for_label }}">Full Name <span class="text-danger">*</span></label>
+                {{ form.name }}
+                {% if form.name.errors %}<div class="field-error">{{ form.name.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.email.id_for_label }}">Email Address <span class="text-danger">*</span></label>
+                {{ form.email }}
+                {% if form.email.errors %}<div class="field-error">{{ form.email.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.phone.id_for_label }}">Phone Number</label>
+                {{ form.phone }}
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.company.id_for_label }}">Company / Organisation</label>
+                {{ form.company }}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="{{ form.subject.id_for_label }}">Nature of Enquiry <span class="text-danger">*</span></label>
+                {{ form.subject }}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="{{ form.message.id_for_label }}">Your Message <span class="text-danger">*</span></label>
+                {{ form.message }}
+                {% if form.message.errors %}<div class="field-error">{{ form.message.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-12 d-flex align-items-center gap-4 flex-wrap mt-2">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                  <i class="bi bi-send-fill me-2"></i>Submit Enquiry
+                </button>
+                <span class="enquiry-note">
+                  <i class="bi bi-shield-check me-1 text-success"></i>
+                  Your data is safe and never shared.
+                </span>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block schema_markup %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "SP-Tech Software Solution",
+  "url": "https://www.sanjivani.com",
+  "logo": "https://www.sanjivani.com/static/assets/sp-tech-logo.png",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+91-84476-95372",
+    "contactType": "customer support",
+    "areaServed": "IN",
+    "availableLanguage": ["English", "Hindi"]
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Plot No 264, Ecotech-3, Greater Noida West",
+    "addressLocality": "Gautam Buddha Nagar",
+    "addressRegion": "Uttar Pradesh",
+    "postalCode": "201301",
+    "addressCountry": "IN"
+  }
+}
+</script>
+{% endblock %}

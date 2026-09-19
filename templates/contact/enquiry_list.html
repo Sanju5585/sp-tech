@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="page-header">
+  <div class="container text-center">
+    <h1 class="page-header-title">Demo <span class="text-gradient">Enquiries</span></h1>
+    <p class="page-header-subtitle">
+      {{ enquiries|length }} total
+      {% if unread_count %} · <strong>{{ unread_count }} unread</strong>{% endif %}
+    </p>
+  </div>
+</section>
+
+<section class="section-py">
+  <div class="container">
+    <div class="enquiry-form-card">
+      {% if enquiries %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 enquiry-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Name</th>
+              <th>Company</th>
+              <th>Mobile</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in enquiries %}
+            <tr class="{% if not e.is_read %}table-row-unread{% endif %}">
+              <td>
+                {% if e.is_read %}
+                <span class="badge text-bg-secondary">Read</span>
+                {% else %}
+                <span class="badge text-bg-warning">New</span>
+                {% endif %}
+              </td>
+              <td class="fw-semibold">{{ e.full_name }}</td>
+              <td>{{ e.company_name }}</td>
+              <td><a href="tel:+91{{ e.mobile_no }}">{{ e.mobile_no }}</a></td>
+              <td class="text-muted small">{{ e.created_at|date:"d M Y, h:i A" }}</td>
+              <td class="text-end">
+                <a href="{% url 'contact:enquiry_detail' e.pk %}" class="btn btn-sm btn-primary">
+                  View <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+        <p class="mb-0">No demo enquiries yet.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+  .app-frame {
+    width: 100%;
+    height: calc(100vh - 72px);
+    border: 0;
+    display: block;
+    background: #f3ece1;
+  }
+  main { padding: 0 !important; }
+</style>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+{% block floating %}{% endblock %}
+
+{% block content %}
+{% if spa_ready %}
+<iframe class="app-frame" title="{{ app.name }}" src="{{ launch_url }}"></iframe>
+{% else %}
+<div class="container section-py text-center">
+  <h1 class="h3">{{ app.name }} is not built yet</h1>
+  <p class="text-muted">Build the timetable frontend, then reload this page.</p>
+</div>
+{% endif %}
+{% endblock %}

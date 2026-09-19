@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="page-header">
+  <div class="container text-center">
+    <h1 class="page-header-title">Book a <span class="text-gradient">Demo</span></h1>
+    <p class="page-header-subtitle">Tell us about your business and software needs — we’ll get back within one business day</p>
+    <nav aria-label="breadcrumb" class="mt-3">
+      <ol class="breadcrumb justify-content-center">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+        <li class="breadcrumb-item active">Book Demo</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="section-py">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="enquiry-form-card">
+          <div class="enquiry-form-header">
+            <div class="enquiry-form-icon"><i class="bi bi-calendar-check-fill"></i></div>
+            <div>
+              <h2 class="enquiry-form-title">Demo Enquiry Form</h2>
+              <p class="enquiry-form-sub">Fill in the details below and our team will schedule a demo for you.</p>
+            </div>
+          </div>
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.first_name.id_for_label }}">Name <span class="text-danger">*</span></label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.surname.id_for_label }}">Surname <span class="text-danger">*</span></label>
+                {{ form.surname }}
+                {% if form.surname.errors %}<div class="field-error">{{ form.surname.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.mobile_no.id_for_label }}">Mobile No <span class="text-danger">*</span></label>
+                {{ form.mobile_no }}
+                {% if form.mobile_no.errors %}<div class="field-error">{{ form.mobile_no.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}<div class="field-error">{{ form.email.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="{{ form.company_name.id_for_label }}">Company Name <span class="text-danger">*</span></label>
+                {{ form.company_name }}
+                {% if form.company_name.errors %}<div class="field-error">{{ form.company_name.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="{{ form.company_address.id_for_label }}">Company Address <span class="text-danger">*</span></label>
+                {{ form.company_address }}
+                {% if form.company_address.errors %}<div class="field-error">{{ form.company_address.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="{{ form.software_requirement.id_for_label }}">S/W Requirement <span class="text-danger">*</span></label>
+                {{ form.software_requirement }}
+                {% if form.software_requirement.errors %}<div class="field-error">{{ form.software_requirement.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="col-12 d-flex align-items-center gap-4 flex-wrap mt-2">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                  <i class="bi bi-send-fill me-2"></i>Submit Enquiry
+                </button>
+                <span class="enquiry-note">
+                  <i class="bi bi-shield-check me-1 text-success"></i>
+                  Your data is safe and never shared.
+                </span>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

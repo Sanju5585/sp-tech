@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="section-py">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Article -->
+      <div class="col-lg-8">
+        <nav aria-label="breadcrumb" class="mb-4">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'blog:list' %}">Blog</a></li>
+            <li class="breadcrumb-item active">{{ post.title|truncatechars:40 }}</li>
+          </ol>
+        </nav>
+
+        {% if post.featured_image %}
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}"
+             class="img-fluid rounded-3 shadow-sm mb-4 w-100" style="max-height:420px;object-fit:cover;" />
+        {% endif %}
+
+        <div class="blog-meta mb-3">
+          <span><i class="bi bi-calendar3 me-1"></i>{{ post.published_at|date:"d F Y" }}</span>
+          {% if post.author %}
+          <span class="ms-3"><i class="bi bi-person me-1"></i>{{ post.author.get_full_name|default:post.author.username }}</span>
+          {% endif %}
+          {% for tag in post.tags.all %}
+          <a href="{% url 'blog:list' %}?tag={{ tag.slug }}" class="badge badge-accent ms-2 text-decoration-none">{{ tag.name }}</a>
+          {% endfor %}
+        </div>
+
+        <h1 class="blog-post-title mb-4">{{ post.title }}</h1>
+
+        <div class="blog-post-content">
+          {{ post.content|linebreaks }}
+        </div>
+
+        <!-- Share Buttons -->
+        <div class="share-bar mt-5 pt-4 border-top">
+          <span class="me-3 fw-semibold">Share:</span>
+          <a href="https://twitter.com/intent/tweet?text={{ post.title|urlencode }}&url={{ SITE_URL }}{{ post.get_absolute_url }}"
+             target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary me-2">
+            <i class="bi bi-twitter-x me-1"></i>Twitter
+          </a>
+          <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ SITE_URL }}{{ post.get_absolute_url }}&title={{ post.title|urlencode }}"
+             target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary me-2">
+            <i class="bi bi-linkedin me-1"></i>LinkedIn
+          </a>
+          <a href="https://wa.me/?text={{ post.title|urlencode }}%20{{ SITE_URL }}{{ post.get_absolute_url }}"
+             target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-whatsapp me-1"></i>WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <!-- CTA Card -->
+        <div class="demo-cta-card mb-4">
+          <h5 class="mb-2"><i class="bi bi-rocket-takeoff me-2"></i>Grow Your Business</h5>
+          <p class="text-muted small mb-3">Explore our software products built for logistics, sales, and operations.</p>
+          <a href="{% url 'products:list' %}" class="btn btn-primary w-100">View Products</a>
+        </div>
+
+        <!-- Tags -->
+        <div class="sidebar-card mb-4">
+          <h6 class="sidebar-heading">Tags</h6>
+          <div class="d-flex flex-wrap gap-2">
+            {% for tag in post.tags.all %}
+            <a href="{% url 'blog:list' %}?tag={{ tag.slug }}" class="badge badge-accent text-decoration-none">{{ tag.name }}</a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Contact prompt -->
+        <div class="sidebar-card">
+          <h6 class="sidebar-heading">Have a Question?</h6>
+          <p class="text-muted small">Our team is ready to help you find the right solution for your business.</p>
+          <a href="{% url 'contact:contact' %}" class="btn btn-outline-primary btn-sm w-100">Contact Us</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block schema_markup %}
+<script type="application/ld+json">
+{{ schema_markup|safe }}
+</script>
+{% endblock %}

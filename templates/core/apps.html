@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="page-header">
+  <div class="container text-center">
+    <h1 class="page-header-title">Your <span class="text-gradient">Apps</span></h1>
+    <p class="page-header-subtitle">Open a product. You are already signed in.</p>
+  </div>
+</section>
+
+<section class="section-py">
+  <div class="container">
+    <div class="row g-4">
+      {% for app in apps %}
+      <div class="col-md-6 col-lg-4">
+        <div class="product-card h-100">
+          <div class="product-card-body">
+            <div class="product-card-icon mb-3">
+              <i class="bi {{ app.icon_class }}"></i>
+            </div>
+            <h2 class="product-card-title">{{ app.name }}</h2>
+            {% if app.tagline %}<p class="product-card-text">{{ app.tagline }}</p>{% endif %}
+            {% if app.description %}<p class="text-muted small mb-0">{{ app.description }}</p>{% endif %}
+          </div>
+          <div class="product-card-footer">
+            <a class="btn btn-primary w-100" href="{% url 'core:launch_app' app.slug %}">
+              Open app <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <p class="text-muted">No apps yet.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if user.is_superuser %}
+    <div class="row mt-5">
+      <div class="col-lg-6">
+        <div class="enquiry-form-card">
+          <h2 class="enquiry-form-title mb-2">Add another app</h2>
+          <p class="enquiry-form-sub mb-3">Super admin only. Internal apps open in this site; external apps use a URL.</p>
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              {{ form.name }}
+              {% if form.name.errors %}<div class="field-error">{{ form.name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Slug</label>
+              {{ form.slug }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Tagline</label>
+              {{ form.tagline }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              {{ form.description }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Icon class</label>
+              {{ form.icon_class }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Type</label>
+              {{ form.kind }}
+            </div>
+            <div class="mb-4">
+              <label class="form-label">External URL</label>
+              {{ form.external_url }}
+            </div>
+            <button class="btn btn-primary" type="submit">Add app</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

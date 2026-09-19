@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Page Header -->
+<section class="page-header">
+  <div class="container text-center">
+    <h1 class="page-header-title">Our <span class="text-gradient">Blog</span></h1>
+    <p class="page-header-subtitle">Business automation, AI for SMBs, and software trends that drive growth</p>
+    <nav aria-label="breadcrumb" class="mt-3">
+      <ol class="breadcrumb justify-content-center">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+        <li class="breadcrumb-item active">Blog</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="section-py">
+  <div class="container">
+    <!-- Tag filter -->
+    {% if tags %}
+    <div class="d-flex flex-wrap gap-2 mb-5">
+      <a href="{% url 'blog:list' %}" class="btn btn-sm {% if not current_tag %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
+      {% for tag in tags %}
+      <a href="{% url 'blog:list' %}?tag={{ tag.slug }}"
+         class="btn btn-sm {% if current_tag.pk == tag.pk %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        {{ tag.name }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+      {% for post in page_obj %}
+      <div class="col-md-6 col-lg-4">
+        <article class="blog-card h-100">
+          {% if post.featured_image %}
+          <a href="{{ post.get_absolute_url }}">
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="blog-card-img" />
+          </a>
+          {% else %}
+          <div class="blog-card-img-placeholder">
+            <i class="bi bi-newspaper fs-2 text-muted"></i>
+          </div>
+          {% endif %}
+          <div class="blog-card-body">
+            <div class="blog-meta">
+              <span><i class="bi bi-calendar3 me-1"></i>{{ post.published_at|date:"d M Y" }}</span>
+              {% if post.author %}
+              <span><i class="bi bi-person me-1"></i>{{ post.author.get_full_name|default:post.author.username }}</span>
+              {% endif %}
+            </div>
+            <h2 class="blog-card-title">
+              <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+            </h2>
+            <p class="blog-card-excerpt">{{ post.excerpt }}</p>
+          </div>
+          <div class="blog-card-footer">
+            <a href="{{ post.get_absolute_url }}" class="btn btn-sm btn-outline-primary">
+              Read Article <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </article>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-journal-text fs-1 text-muted mb-3 d-block"></i>
+        <h4 class="text-muted">No posts yet</h4>
+        <p class="text-muted">Check back soon for insights and articles.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Blog pagination" class="mt-5">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_tag %}&tag={{ current_tag.slug }}{% endif %}">
+            <i class="bi bi-chevron-left"></i> Previous
+          </a>
+        </li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+          <a class="page-link" href="?page={{ num }}{% if current_tag %}&tag={{ current_tag.slug }}{% endif %}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_tag %}&tag={{ current_tag.slug }}{% endif %}">
+            Next <i class="bi bi-chevron-right"></i>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

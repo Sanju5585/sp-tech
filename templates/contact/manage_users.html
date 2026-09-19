@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="page-header">
+  <div class="container text-center">
+    <h1 class="page-header-title">Manage <span class="text-gradient">Users</span></h1>
+    <p class="page-header-subtitle">Create users who can log in and open the Apps page</p>
+  </div>
+</section>
+
+<section class="section-py">
+  <div class="container">
+    <div class="row g-4">
+
+      <div class="col-lg-5">
+        <div class="enquiry-form-card h-100">
+          <div class="enquiry-form-header">
+            <div class="enquiry-form-icon"><i class="bi bi-person-plus-fill"></i></div>
+            <div>
+              <h2 class="enquiry-form-title">Create User</h2>
+              <p class="enquiry-form-sub">New users can log in and open Apps</p>
+            </div>
+          </div>
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ form.username.id_for_label }}">Username <span class="text-danger">*</span></label>
+              {{ form.username }}
+              {% if form.username.errors %}<div class="field-error">{{ form.username.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.first_name.id_for_label }}">First Name</label>
+                {{ form.first_name }}
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.last_name.id_for_label }}">Last Name</label>
+                {{ form.last_name }}
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+              {{ form.email }}
+              {% if form.email.errors %}<div class="field-error">{{ form.email.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="{{ form.password1.id_for_label }}">Password <span class="text-danger">*</span></label>
+              {{ form.password1 }}
+              {% if form.password1.errors %}<div class="field-error">{{ form.password1.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm Password <span class="text-danger">*</span></label>
+              {{ form.password2 }}
+              {% if form.password2.errors %}<div class="field-error">{{ form.password2.errors.0 }}</div>{% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="bi bi-person-plus me-2"></i>Create User
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="enquiry-form-card">
+          <h2 class="enquiry-form-title mb-3">Staff Users</h2>
+          {% if users %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 enquiry-table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for u in users %}
+                <tr>
+                  <td class="fw-semibold">{{ u.username }}</td>
+                  <td>{{ u.get_full_name|default:"—" }}</td>
+                  <td>
+                    {% if u.is_superuser %}
+                    <span class="badge text-bg-primary">Admin</span>
+                    {% else %}
+                    <span class="badge text-bg-secondary">Apps access</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if u.is_active %}
+                    <span class="badge text-bg-success">Active</span>
+                    {% else %}
+                    <span class="badge text-bg-danger">Inactive</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    {% if not u.is_superuser and u.pk != request.user.pk %}
+                    <form method="post" action="{% url 'contact:toggle_user' u.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm {% if u.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                        {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+                      </button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted small">—</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted mb-0">No staff users yet.</p>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}
