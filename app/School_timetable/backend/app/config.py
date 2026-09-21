@@ -26,6 +26,8 @@ class Settings(BaseSettings):
         "http://localhost:8080,http://127.0.0.1:8080,"
         "http://localhost:8000,http://127.0.0.1:8000,"
         "https://sanjivani.com,https://www.sanjivani.com,"
+        "https://sanjivanione.com,https://www.sanjivanione.com,"
+        "https://sanjivanione.in,https://www.sanjivanione.in,"
         "https://127.0.0.1,https://localhost"
     )
     database_url: str = "sqlite:///./timetable.db"

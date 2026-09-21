@@ -13,6 +13,7 @@ Usage (from project root, as Administrator):
 from __future__ import annotations
 
 import os
+import ipaddress
 import ssl
 import sys
 import threading
@@ -40,19 +41,43 @@ INTERNAL_HOST = '127.0.0.1'
 INTERNAL_PORT = int(os.getenv('INTERNAL_WSGI_PORT', '8000'))
 HTTP_PORT = int(os.getenv('HTTP_PORT', '80'))
 HTTPS_PORT = int(os.getenv('HTTPS_PORT', '443'))
+CANONICAL_HOST = os.getenv('CANONICAL_HOST', 'www.sanjivanione.in').strip() or 'www.sanjivanione.in'
 SSL_DOMAINS = [
     d.strip()
     for d in os.getenv(
         'SSL_DOMAINS',
-        'sanjivani.com,www.sanjivani.com,localhost,127.0.0.1',
+        'sanjivanione.in,www.sanjivanione.in,sanjivanione.com,www.sanjivanione.com,sanjivani.com,www.sanjivani.com,localhost,127.0.0.1',
     ).split(',')
     if d.strip()
 ]
 
 
+def normalize_host(host_header: str | None) -> str:
+    """Rewrite raw-IP Host headers to the canonical domain (stops DisallowedHost spam)."""
+    raw = (host_header or CANONICAL_HOST).strip() or CANONICAL_HOST
+    hostname = raw.split(':')[0].strip().strip('[]')
+    if not hostname:
+        return CANONICAL_HOST
+    try:
+        ipaddress.ip_address(hostname)
+        return CANONICAL_HOST
+    except ValueError:
+        return raw
+
+
 class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
     daemon_threads = True
     allow_reuse_address = True
+
+    def handle_error(self, request, client_address):
+        # Scanners often reset TLS mid-handshake — don't dump full tracebacks.
+        exc = sys.exc_info()[1]
+        if isinstance(exc, (ConnectionResetError, BrokenPipeError, ConnectionAbortedError, ssl.SSLError)):
+            sys.stdout.write(
+                f'[https] dropped connection from {client_address[0]}: {exc.__class__.__name__}\n'
+            )
+            return
+        super().handle_error(request, client_address)
 
 
 class RedirectHandler(BaseHTTPRequestHandler):
@@ -66,8 +91,8 @@ class RedirectHandler(BaseHTTPRequestHandler):
         self._redirect()
 
     def _redirect(self):
-        host = self.headers.get('Host', 'localhost').split(':')[0]
-        loc = f'https://{host}{self.path}'
+        host = normalize_host(self.headers.get('Host'))
+        loc = f'https://{host.split(":")[0]}{self.path}'
         self.send_response(301)
         self.send_header('Location', loc)
         self.end_headers()
@@ -92,7 +117,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
             k: v for k, v in self.headers.items()
             if k.lower() not in {'host', 'connection', 'transfer-encoding', 'content-length'}
         }
-        host = self.headers.get('Host', 'localhost')
+        host = normalize_host(self.headers.get('Host'))
         headers['Host'] = host
         headers['X-Forwarded-Proto'] = 'https'
         headers['X-Forwarded-Host'] = host
@@ -113,21 +138,26 @@ class ProxyHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Length', str(len(msg)))
             self.end_headers()
             self.wfile.write(msg)
+        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+            return
 
     def _write_upstream(self, status, headers, data: bytes):
-        self.send_response(status)
-        for key, val in headers.items():
-            if key.lower() in {
-                'transfer-encoding', 'connection', 'content-encoding',
-                'content-length', 'keep-alive',
-            }:
-                continue
-            self.send_header(key, val)
-        self.send_header('Content-Length', str(len(data or b'')))
-        self.send_header('Connection', 'close')
-        self.end_headers()
-        if data and self.command != 'HEAD':
-            self.wfile.write(data)
+        try:
+            self.send_response(status)
+            for key, val in headers.items():
+                if key.lower() in {
+                    'transfer-encoding', 'connection', 'content-encoding',
+                    'content-length', 'keep-alive',
+                }:
+                    continue
+                self.send_header(key, val)
+            self.send_header('Content-Length', str(len(data or b'')))
+            self.send_header('Connection', 'close')
+            self.end_headers()
+            if data and self.command != 'HEAD':
+                self.wfile.write(data)
+        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+            return
 
     def do_GET(self):
         self._proxy()
@@ -196,8 +226,8 @@ def start_https_proxy() -> None:
     server = ThreadingHTTPServer(('0.0.0.0', HTTPS_PORT), ProxyHandler)
     server.socket = context.wrap_socket(server.socket, server_side=True)
     print(f'[https] SSL server on https://0.0.0.0:{HTTPS_PORT}')
-    print('Open: https://www.sanjivani.com/  or  https://sanjivani.com/')
-    print('Local: https://127.0.0.1/  (browser will warn on a self-signed cert)')
+    print('Open: https://www.sanjivanione.in/  or  https://sanjivanione.in/')
+    print('Also: https://sanjivanione.com/  /  Local: https://127.0.0.1/')
     server.serve_forever()
 
 
@@ -211,15 +241,28 @@ def main() -> None:
 
     ensure_certs()
 
-    # Collect static so WhiteNoise can serve assets
+    # Migrate DB + collect static so WhiteNoise can serve assets
     os.chdir(ROOT)
     try:
         from django.core.management import call_command
         import django
         django.setup()
+        call_command('migrate', '--noinput', verbosity=0)
+        call_command('ensure_superadmin', verbosity=0)
         call_command('collectstatic', '--noinput', '--clear', verbosity=0)
     except Exception as exc:
-        print(f'Warning: collectstatic skipped ({exc})')
+        print(f'Warning: migrate/collectstatic skipped ({exc})')
+
+    # School Timetable API (FastAPI on :8001) — required when opening Apps
+    try:
+        from deploy.timetable_service import ensure_running as ensure_timetable
+        threading.Thread(
+            target=lambda: ensure_timetable(wait_seconds=120.0),
+            name='timetable-api',
+            daemon=True,
+        ).start()
+    except Exception as exc:
+        print(f'Warning: timetable service start skipped ({exc})')
 
     threading.Thread(target=start_waitress, name='waitress', daemon=True).start()
     threading.Thread(target=start_http_redirect, name='http-redirect', daemon=True).start()

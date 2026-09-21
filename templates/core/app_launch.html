@@ -17,8 +17,14 @@
 {% block floating %}{% endblock %}
 
 {% block content %}
-{% if spa_ready %}
+{% if spa_ready and service_ready %}
 <iframe class="app-frame" title="{{ app.name }}" src="{{ launch_url }}"></iframe>
+{% elif spa_ready %}
+<div class="container section-py text-center">
+  <h1 class="h3">{{ app.name }} is starting…</h1>
+  <p class="text-muted">The timetable service was not running. Refresh this page in a few seconds.</p>
+  <a class="btn btn-primary mt-3" href="{{ request.path }}">Retry</a>
+</div>
 {% else %}
 <div class="container section-py text-center">
   <h1 class="h3">{{ app.name }} is not built yet</h1>

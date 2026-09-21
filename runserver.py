@@ -23,5 +23,6 @@ os.environ.setdefault("PYTHONUNBUFFERED", "1")
 if __name__ == "__main__":
     print("SP-Tech Software Solution")
     print("HTTPS production stack: HTTP :80 -> HTTPS :443")
-    print("Local: https://127.0.0.1/   Domain: https://www.sanjivani.com/")
+    print("Local: https://127.0.0.1/   Domain: https://www.sanjivanione.com/")
+    print("Timetable API starts automatically on http://127.0.0.1:8001")
     runpy.run_path(str(ROOT / "deploy" / "run_https.py"), run_name="__main__")

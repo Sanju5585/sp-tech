@@ -25,17 +25,31 @@ if not exist "venv\Scripts\python.exe" (
     exit /b 1
 )
 
-echo Stopping any previous instance on ports 80, 443, and 8000...
-powershell -NoProfile -Command "foreach ($p in 80,443,8000) { Get-NetTCPConnection -LocalPort $p -ErrorAction SilentlyContinue | ForEach-Object { if ($_.OwningProcess -gt 4) { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } } }"
+echo Stopping any previous instance on ports 80, 443, 8000, and 8001...
+powershell -NoProfile -Command "foreach ($p in 80,443,8000,8001) { Get-NetTCPConnection -LocalPort $p -ErrorAction SilentlyContinue | ForEach-Object { if ($_.OwningProcess -gt 4) { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } } }"
 
 echo Installing/updating runtime packages...
 "venv\Scripts\python.exe" -m pip install -q waitress cryptography python-dotenv
 
 echo Generating SSL certificate for sanjivani.com...
-"venv\Scripts\python.exe" deploy\generate_ssl_cert.py --domains "sanjivani.com,www.sanjivani.com,localhost,127.0.0.1"
+"venv\Scripts\python.exe" deploy\generate_ssl_cert.py --domains "sanjivanione.in,www.sanjivanione.in,sanjivanione.com,www.sanjivanione.com,sanjivani.com,www.sanjivani.com,localhost,127.0.0.1"
+
+echo Trusting SSL certificate in Windows Trusted Root...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0deploy\trust_ssl_cert.ps1"
+
+echo Applying database migrations...
+set DJANGO_SETTINGS_MODULE=sanjivani.settings
+"venv\Scripts\python.exe" manage.py migrate --noinput
+if errorlevel 1 (
+    echo ERROR: Database migrate failed.
+    pause
+    exit /b 1
+)
+
+echo Ensuring superAdmin account...
+"venv\Scripts\python.exe" manage.py ensure_superadmin
 
 echo Collecting static files...
-set DJANGO_SETTINGS_MODULE=sanjivani.settings
 "venv\Scripts\python.exe" manage.py collectstatic --noinput --clear
 
 echo.

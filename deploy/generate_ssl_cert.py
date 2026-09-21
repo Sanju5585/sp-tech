@@ -67,14 +67,14 @@ def generate(domains: list[str], days: int = 825) -> None:
     print(f'Certificate written to: {CERT_FILE}')
     print(f'Private key written to: {KEY_FILE}')
     print(f'Valid for domains/IPs: {", ".join(domains)} ({days} days)')
-    print('Browsers will show a warning for self-signed certs - click Advanced -> Proceed.')
+    print('On Windows, trust it with:  .\\deploy\\trust_ssl_cert.ps1  (as Administrator)')
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description='Generate self-signed SSL certificate')
     parser.add_argument(
         '--domains',
-        default='sanjivani.com,www.sanjivani.com,localhost,127.0.0.1',
+        default='sanjivanione.in,www.sanjivanione.in,sanjivanione.com,www.sanjivanione.com,sanjivani.com,www.sanjivani.com,localhost,127.0.0.1',
         help='Comma-separated DNS names / IPs',
     )
     parser.add_argument('--days', type=int, default=825)

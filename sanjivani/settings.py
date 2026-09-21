@@ -3,6 +3,7 @@ Django settings for SP-Tech Software Solution project.
 """
 
 import os
+import socket
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -14,7 +15,72 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-in-pro
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+def _local_host_ips() -> list[str]:
+    """IPs on this machine so probes by public/private IP don't trip DisallowedHost."""
+    found: set[str] = {'127.0.0.1', 'localhost'}
+    try:
+        hostname = socket.gethostname()
+        found.add(hostname)
+        for info in socket.getaddrinfo(hostname, None):
+            ip = info[4][0]
+            if ip and not ip.startswith('fe80:'):
+                found.add(ip)
+    except OSError:
+        pass
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.connect(('8.8.8.8', 80))
+            found.add(sock.getsockname()[0])
+    except OSError:
+        pass
+    # AWS EC2 public IPv4 (IMDSv2, then IMDSv1)
+    try:
+        import urllib.request
+
+        token = ''
+        try:
+            token_req = urllib.request.Request(
+                'http://169.254.169.254/latest/api/token',
+                method='PUT',
+                headers={'X-aws-ec2-metadata-token-ttl-seconds': '60'},
+            )
+            with urllib.request.urlopen(token_req, timeout=0.5) as resp:
+                token = resp.read().decode('ascii').strip()
+        except Exception:
+            token = ''
+        meta_headers = {'X-aws-ec2-metadata-token': token} if token else {}
+        req = urllib.request.Request(
+            'http://169.254.169.254/latest/meta-data/public-ipv4',
+            headers=meta_headers,
+            method='GET',
+        )
+        with urllib.request.urlopen(req, timeout=0.5) as resp:
+            public_ip = resp.read().decode('ascii').strip()
+            if public_ip:
+                found.add(public_ip)
+    except Exception:
+        pass
+    extra = os.getenv('PUBLIC_IP', '').strip()
+    if extra:
+        found.add(extra)
+    return sorted(found)
+
+
+ALLOWED_HOSTS = [
+    h.strip() for h in os.getenv(
+        'ALLOWED_HOSTS',
+        'localhost,127.0.0.1,'
+        'sanjivani.com,www.sanjivani.com,'
+        'sanjivanione.com,www.sanjivanione.com,'
+        'sanjivanione.in,www.sanjivanione.in',
+    ).split(',')
+    if h.strip()
+]
+# Always permit this server's own addresses (bots/scanners hit the raw IP).
+for _ip in _local_host_ips():
+    if _ip not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(_ip)
 
 SITE_ID = 1
 
@@ -127,7 +193,9 @@ CSRF_TRUSTED_ORIGINS = [
         'CSRF_TRUSTED_ORIGINS',
         'http://127.0.0.1:8000,http://localhost:8000,'
         'https://127.0.0.1,https://localhost,'
-        'https://sanjivani.com,https://www.sanjivani.com',
+        'https://sanjivani.com,https://www.sanjivani.com,'
+        'https://sanjivanione.com,https://www.sanjivanione.com,'
+        'https://sanjivanione.in,https://www.sanjivanione.in',
     ).split(',')
     if o.strip()
 ]
@@ -147,7 +215,7 @@ CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'contact@sanjivani.com')
 
 # Site metadata
 SITE_NAME = 'SP-Tech Software Solution'
-SITE_URL = os.getenv('SITE_URL', 'https://www.sanjivani.com')
+SITE_URL = os.getenv('SITE_URL', 'https://www.sanjivanione.in')
 SITE_TAGLINE = 'SanjivaniOne ERP and business software for SMB growth'
 SITE_DESCRIPTION = (
     'SP-Tech Software Solution builds SanjivaniOne ERP—the flagship platform for '
@@ -184,3 +252,19 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Quiet scanner noise (raw-IP Host probes); real app errors still log.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'loggers': {
+        'django.security.DisallowedHost': {
+            'handlers': ['console'],
+            'level': 'CRITICAL',
+            'propagate': False,
+        },
+    },
+}

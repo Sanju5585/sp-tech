@@ -54,12 +54,14 @@ Open: http://127.0.0.1:8000/
 
 **Site login**: http://127.0.0.1:8000/contact/login/
 - Username: `superAdmin`
-- Password: same as the timetable super admin
+- Password: `sanjeev@5585`
 
 After login, open **Apps**. Super admin can add more users at **Users**.
 
-**Site login**: http://127.0.0.1:8000/contact/login/  
-**Apps**: http://127.0.0.1:8000/apps/ (login required)
+Create/reset this account anytime with:
+```bash
+python manage.py ensure_superadmin
+```
 
 **Book Demo / Enquiries**: `/contact/book-demo/` · `/contact/enquiries/`
 

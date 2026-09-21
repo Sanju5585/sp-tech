@@ -18,6 +18,25 @@ from .models import PortalApp, TeamMember, Testimonial
 from .sso import make_portal_sso_token
 
 
+def _ensure_timetable_service(wait_seconds: float = 45.0) -> bool:
+    """Start School Timetable API (port 8001) if it is not already up."""
+    try:
+        from deploy.timetable_service import ensure_running, is_running
+    except Exception:
+        # Fallback when deploy is not on sys.path
+        try:
+            import sys
+            from pathlib import Path
+            root = Path(settings.BASE_DIR)
+            if str(root) not in sys.path:
+                sys.path.insert(0, str(root))
+            from deploy.timetable_service import ensure_running, is_running
+        except Exception:
+            return False
+    if is_running():
+        return True
+    return ensure_running(wait_seconds=wait_seconds)
+
 def _ensure_default_apps():
     PortalApp.objects.get_or_create(
         slug='school-timetable',
@@ -114,6 +133,9 @@ def launch_app(request, slug):
     app = get_object_or_404(PortalApp, slug=slug, is_active=True)
     if app.kind == PortalApp.KIND_EXTERNAL and app.external_url:
         return redirect(app.external_url)
+    service_ready = True
+    if app.slug == 'school-timetable' or app.kind == PortalApp.KIND_INTERNAL:
+        service_ready = _ensure_timetable_service(wait_seconds=90.0)
     token = make_portal_sso_token(request.user.username, request.user.is_superuser)
     spa_base = reverse('core:timetable_spa')
     launch_url = f'{spa_base}?sso={token}'
@@ -122,7 +144,9 @@ def launch_app(request, slug):
         'robots': 'noindex, nofollow',
         'app': app,
         'launch_url': launch_url,
-        'spa_ready': Path(settings.TIMETABLE_SPA_DIR, 'index.html').is_file(),
+        'spa_ready': Path(settings.TIMETABLE_SPA_DIR, 'index.html').is_file()
+        or (Path(settings.STATIC_ROOT) / 'timetable-app' / 'index.html').is_file(),
+        'service_ready': service_ready,
     }
     return render(request, 'core/app_launch.html', context)
 
@@ -153,6 +177,8 @@ def timetable_spa(request, rest=''):
 @csrf_exempt
 @login_required
 def timetable_api_proxy(request, path):
+    if not _ensure_timetable_service(wait_seconds=60.0):
+        return JsonResponse({'detail': 'Timetable service is not running.'}, status=503)
     target = f"{settings.TIMETABLE_API_URL.rstrip('/')}/api/{path.lstrip('/')}"
     qs = request.META.get('QUERY_STRING')
     if qs:
